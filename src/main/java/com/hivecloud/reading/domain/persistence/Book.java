@@ -1,9 +1,12 @@
 package com.hivecloud.reading.domain.persistence;
 
+import com.hivecloud.reading.constants.CommonConstants;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity(name = "book")
@@ -43,10 +46,12 @@ public class Book {
     private Integer finalRating;
 
     @Column(name = "start_reading_date")
-    private LocalDateTime startReadingDate;
+    @DateTimeFormat(pattern = CommonConstants.DATE_PATTERN)
+    private LocalDate startReadingDate;
 
     @Column(name = "end_reading_date")
-    private LocalDateTime endReadingDate;
+    @DateTimeFormat(pattern = CommonConstants.DATE_PATTERN)
+    private LocalDate endReadingDate;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

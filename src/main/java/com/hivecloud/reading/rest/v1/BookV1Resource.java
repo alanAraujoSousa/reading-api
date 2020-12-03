@@ -1,8 +1,10 @@
 package com.hivecloud.reading.rest.v1;
 
 import com.hivecloud.reading.constants.EndPointsV1;
+import com.hivecloud.reading.domain.dto.v1.BookReadV1DTO;
 import com.hivecloud.reading.domain.dto.v1.BookV1DTO;
 import com.hivecloud.reading.domain.dto.v1.CreateBookV1DTO;
+import com.hivecloud.reading.domain.dto.v1.ReadingBookV1DTO;
 import com.hivecloud.reading.domain.persistence.Book;
 import com.hivecloud.reading.domain.persistence.User;
 import com.hivecloud.reading.service.BookService;
@@ -45,5 +47,21 @@ public class BookV1Resource {
         Long id = service.create(dto, user);
         return ResponseEntity.created(URI.create(EndPointsV1.BOOK.ROOT + "/" + id))
                 .build();
+    }
+
+    @PostMapping(EndPointsV1.BOOK.READING)
+    public ResponseEntity reading(@PathVariable("id") Long id,
+                                  @Validated @RequestBody ReadingBookV1DTO dto) {
+        Book book = service.get(id);
+        service.reading(dto, book);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(EndPointsV1.BOOK.READ)
+    public ResponseEntity read(@PathVariable("id") Long id,
+                               @Validated @RequestBody BookReadV1DTO dto) {
+        Book book = service.get(id);
+        service.read(dto, book);
+        return ResponseEntity.ok().build();
     }
 }
