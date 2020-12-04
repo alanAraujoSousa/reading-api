@@ -1,6 +1,7 @@
 package com.hivecloud.reading.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hivecloud.reading.constants.SecurityConstants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -53,10 +54,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                                             Authentication auth) throws IOException, ServletException {
         Date exp = new Date(System.currentTimeMillis() + EXPIRATION_TIME);
         Key key = Keys.hmacShaKeyFor(KEY.getBytes());
-        Claims claims = Jwts.claims().setSubject(((User) auth.getPrincipal()).getUsername());
+        User user = (User) auth.getPrincipal();
+        Claims claims = Jwts.claims().setSubject(user.getUsername());
         String token = Jwts.builder().setClaims(claims).signWith(key, SignatureAlgorithm.HS512).setExpiration(exp).compact();
-        res.addHeader("token", token);
-
-
+        res.setContentType("application/json");
+        res.setCharacterEncoding("UTF-8");
+        res.getWriter().write("{\"" + "token" + "\":\""+ token + "\"}");
     }
 }
