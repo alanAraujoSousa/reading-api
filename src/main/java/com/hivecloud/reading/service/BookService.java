@@ -1,17 +1,19 @@
 package com.hivecloud.reading.service;
 
-import com.hivecloud.reading.domain.dto.v1.BookReadV1DTO;
-import com.hivecloud.reading.domain.dto.v1.CreateBookV1DTO;
-import com.hivecloud.reading.domain.dto.v1.ReadingBookV1DTO;
+import com.hivecloud.reading.domain.dto.v1.*;
 import com.hivecloud.reading.domain.persistence.Book;
 import com.hivecloud.reading.domain.persistence.User;
 import com.hivecloud.reading.exceptions.BookNotFoundException;
 import com.hivecloud.reading.repository.BookRepository;
 import com.hivecloud.reading.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,9 +21,25 @@ public class BookService {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final BookRepository repository;
+    private final ModelMapper modelMapper;
 
     public Book get(Long id) {
         return repository.findById(id).orElseThrow(BookNotFoundException::new);
+    }
+
+    public List<BookV1DTO> listByUser(User user) {
+        List<Book> books = this.repository.findByUser(user.getId());
+        List<BookReadersV1DTO> readers = this.repository.listReaders(user.getId());
+
+        List<BookV1DTO> booksDto = books.stream().map(b -> {
+            BookV1DTO bookV1DTO = BookV1DTO.toEntity(b, modelMapper);
+            readers.forEach(r -> {
+                if (r.getTitle().equalsIgnoreCase(b.getTitle()))
+                    bookV1DTO.setReaders(r.getReaders());
+            });
+            return bookV1DTO;
+        }).collect(Collectors.toList());
+        return booksDto;
     }
 
     public Long create(CreateBookV1DTO dto, User user) {

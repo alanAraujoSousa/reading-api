@@ -5,6 +5,7 @@ public abstract class EndPointsV1 {
     public static class USER {
         public static final String ROOT = "/v1/user";
         public static final String GET = "/{id}";
+        public static final String PROFILE = "/profile";
         public static final String CREATE = "/signup";
     }
 
